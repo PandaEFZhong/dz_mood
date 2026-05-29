@@ -157,11 +157,10 @@ export default function Home() {
                 activeTab === 'record' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <span className="hidden sm:inline">记录心情</span>
-              <span className="sm:hidden">记录</span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -169,10 +168,10 @@ export default function Home() {
                 activeTab === 'history' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              历史
+              <span className="hidden sm:inline">历史</span>
               {moods.length > 0 && (
                 <span className="ml-0.5 px-1 py-0 text-[10px] bg-primary-100 text-primary-600 rounded-full">{moods.length}</span>
               )}
@@ -183,11 +182,10 @@ export default function Home() {
                 activeTab === 'stats' ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <span className="hidden sm:inline">统计</span>
-              <span className="sm:hidden">统计</span>
             </button>
           </div>
         </div>
@@ -340,6 +338,11 @@ export default function Home() {
                     id="mood-input"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                    onFocus={(e) => {
+                      setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }, 300)
+                    }}
                     placeholder="写下此刻的想法，让 AI 帮你分析情绪..."
                     rows={5}
                     maxLength={2000}

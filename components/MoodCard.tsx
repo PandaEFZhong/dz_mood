@@ -118,9 +118,13 @@ function getAlertLabel(level?: string) {
 export default function MoodCard({ mood, onDelete, isDeleting }: MoodCardProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [showBodyAdvice, setShowBodyAdvice] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const hasDetailedAnalysis = mood.valence !== undefined
   const hasVitals = mood.vitals !== undefined
   const hasAlert = mood.alertLevel && mood.alertLevel !== 'none'
+
+  // 判断是否需要折叠：超过80字或超过3行
+  const shouldCollapse = mood.content.length > 80 || mood.content.split('\n').length > 3
 
   const handleDeleteClick = () => {
     if (showConfirm) {
@@ -151,9 +155,17 @@ export default function MoodCard({ mood, onDelete, isDeleting }: MoodCardProps) 
       {/* 头部：内容和时间 */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
         <div className="flex-1 min-w-0 order-2 sm:order-1">
-          <p className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words">
+          <p className={`text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words ${!expanded && shouldCollapse ? 'line-clamp-3' : ''}`}>
             {mood.content}
           </p>
+          {shouldCollapse && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-xs text-primary-600 hover:text-primary-700 font-medium mt-1"
+            >
+              {expanded ? '收起 ↑' : '展开全文 ↓'}
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2 self-end sm:self-start order-1 sm:order-2">
           <span className="text-xs text-gray-400 whitespace-nowrap">{formatTime(mood.createdAt)}</span>
