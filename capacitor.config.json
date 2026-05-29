@@ -1,0 +1,14 @@
+{
+  "appId": "com.hearttrace.app",
+  "appName": "心迹",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#ffffff"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+
+> dz_mood@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1767ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1306ms (1428 modules)
+ GET / 200 in 1429ms
+ ✓ Compiled /api/moods in 144ms (804 modules)
+ GET /api/moods 200 in 176ms
+ GET /api/moods 200 in 3ms
+ GET /api/moods 200 in 13ms
+ ✓ Compiled in 74ms (711 modules)
+ ✓ Compiled in 124ms (717 modules)
+ GET /?_rsc=r3yhw 200 in 38ms
+ ✓ Compiled in 82ms (717 modules)
+ GET /?_rsc=r3yhw 200 in 7ms
+ ✓ Compiled in 72ms (717 modules)
+ GET /?_rsc=r3yhw 200 in 5ms
+ ✓ Compiled in 87ms (717 modules)
+ GET /?_rsc=r3yhw 200 in 7ms
+ ✓ Compiled in 228ms (1428 modules)
+ GET /?_rsc=r3yhw 200 in 14ms
+ ✓ Compiled in 235ms (1428 modules)
+ GET /?_rsc=r3yhw 200 in 18ms
+ ✓ Compiled /api/moods in 40ms (804 modules)
+ GET /api/moods 200 in 67ms
+ GET /?_rsc=r3yhw 200 in 30ms
+ GET /api/moods 200 in 3ms
+ ✓ Compiled in 105ms (711 modules)
+ ⨯ ./node_modules/graceful-fs/graceful-fs.js:1:1
+Module not found: Can't resolve 'fs'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/proper-lockfile/lib/lockfile.js
+./node_modules/proper-lockfile/index.js
+./lib/moodStorage.ts
+./lib/api.ts
+./app/page.tsx
+ ⨯ ./node_modules/graceful-fs/graceful-fs.js:1:1
+Module not found: Can't resolve 'fs'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/proper-lockfile/lib/lockfile.js
+./node_modules/proper-lockfile/index.js
+./lib/moodStorage.ts
+./lib/api.ts
+./app/page.tsx
+ ⨯ ./node_modules/graceful-fs/graceful-fs.js:1:1
+Module not found: Can't resolve 'fs'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/proper-lockfile/lib/lockfile.js
+./node_modules/proper-lockfile/index.js
+./lib/moodStorage.ts
+./lib/api.ts
+./app/page.tsx
+ ⨯ ./node_modules/graceful-fs/graceful-fs.js:1:1
+Module not found: Can't resolve 'fs'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/proper-lockfile/lib/lockfile.js
+./node_modules/proper-lockfile/index.js
+./lib/moodStorage.ts
+./lib/api.ts
+./app/page.tsx
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+   	- include was updated to add 'dist/types/**/*.ts'
+
+ ✓ Ready in 2.2s
+   Reload env: .env.local
