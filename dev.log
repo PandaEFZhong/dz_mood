@@ -91,3 +91,4 @@ Import trace for requested module:
 
  ✓ Ready in 2.2s
    Reload env: .env.local
+   Reload env: .env.local

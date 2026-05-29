@@ -28,9 +28,13 @@ export interface MoodEntry {
   alertMessage?: string
   bodyLoadIndex?: number
   bodyAdvice?: string
+  synced?: boolean   // 是否已同步到云端
 }
 
 const STORAGE_KEY = 'moods'
+const ANONYMOUS_ID_KEY = 'anonymous_id'
+
+// ─── 本地存储 ───
 
 export async function getAllMoods(): Promise<MoodEntry[]> {
   try {
@@ -55,6 +59,7 @@ export async function saveMood(
       ...entry,
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       createdAt: new Date().toISOString(),
+      synced: false,
     }
     moods.unshift(newEntry)
     await Preferences.set({ key: STORAGE_KEY, value: JSON.stringify(moods) })
@@ -76,4 +81,31 @@ export async function deleteMood(id: string): Promise<boolean> {
     console.error('删除心情记录失败:', error)
     throw new Error('删除心情记录失败')
   }
+}
+
+export async function saveAllMoods(moods: MoodEntry[]) {
+  await Preferences.set({ key: STORAGE_KEY, value: JSON.stringify(moods) })
+}
+
+// ─── 同步标记 ───
+
+export async function markAllSynced() {
+  const moods = await getAllMoods()
+  const updated = moods.map((m) => ({ ...m, synced: true }))
+  await saveAllMoods(updated)
+}
+
+export async function getUnsyncedMoods(): Promise<MoodEntry[]> {
+  const moods = await getAllMoods()
+  return moods.filter((m) => !m.synced)
+}
+
+// ─── 匿名 ID ───
+
+export async function getAnonymousId(): Promise<string> {
+  const { value } = await Preferences.get({ key: ANONYMOUS_ID_KEY })
+  if (value) return value
+  const id = crypto.randomUUID()
+  await Preferences.set({ key: ANONYMOUS_ID_KEY, value: id })
+  return id
 }

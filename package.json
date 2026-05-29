@@ -17,6 +17,7 @@
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@supabase/supabase-js": "^2.106.2",
     "next": "14.2.0",
     "proper-lockfile": "^4.1.2",
     "rate-limiter-flexible": "^11.1.0",

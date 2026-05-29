@@ -4,9 +4,12 @@ import { useState, useEffect, useCallback } from 'react'
 import MoodCard from '@/components/MoodCard'
 import MoodStats from '@/components/MoodStats'
 import BodyLoadRing from '@/components/BodyLoadRing'
+import AuthModal from '@/components/AuthModal'
+import SettingsPanel from '@/components/SettingsPanel'
 import { MoodEntry } from '@/lib/moodStorage'
 import { fetchMoods, submitMood, removeMood } from '@/lib/api'
 import { requestNotificationPermission, checkNotificationPermission, scheduleDailyReminder } from '@/lib/notifications'
+import { getCurrentUser, deleteMoodFromCloud } from '@/lib/supabase'
 
 type TabType = 'record' | 'history' | 'stats'
 
@@ -21,6 +24,9 @@ export default function Home() {
   const [lastSubmitted, setLastSubmitted] = useState<MoodEntry | null>(null)
   const [expandContent, setExpandContent] = useState(false)
   const [dailyReminder, setDailyReminder] = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   // 身体指标状态
   const [showVitals, setShowVitals] = useState(false)
@@ -43,6 +49,11 @@ export default function Home() {
   useEffect(() => {
     loadMoods()
   }, [loadMoods])
+
+  // 检查登录状态
+  useEffect(() => {
+    getCurrentUser().then((user) => setUserEmail(user?.email ?? null))
+  }, [])
 
   // 检查通知权限状态
   useEffect(() => {
@@ -104,6 +115,7 @@ export default function Home() {
     setDeletingId(id)
     try {
       await removeMood(id)
+      await deleteMoodFromCloud(id)
       setMoods((prev) => prev.filter((mood) => mood.id !== id))
     } catch (err) {
       setError(err instanceof Error ? err.message : '删除失败')
@@ -144,9 +156,23 @@ export default function Home() {
       {/* 顶部标题栏 - 动态安全区域适配刘海/挖孔屏 */}
       <div className="bg-white shadow-sm" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 24px)' }}>
         <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-2 pb-2 sm:pt-3 sm:pb-3">
-          <div className="text-center mb-2 sm:mb-3">
-            <h1 className="text-lg sm:text-xl font-bold text-gray-800">🌈 乐心</h1>
-            <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">记录心情，关注身体</p>
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className="flex-1" />
+            <div className="text-center">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-800">🌈 乐心</h1>
+              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">记录心情，关注身体</p>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <button
+                onClick={() => setShowSettings(true)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Tab 切换 */}
@@ -536,6 +562,27 @@ export default function Home() {
           <a href="https://pandaefzhong.github.io/dz_mood/privacy-policy.html" className="hover:text-gray-500 underline">隐私政策</a>
         </p>
       </footer>
+
+      <AuthModal
+        isOpen={showAuth}
+        onClose={() => setShowAuth(false)}
+        onSuccess={() => {
+          setShowAuth(false)
+          getCurrentUser().then((user) => setUserEmail(user?.email ?? null))
+        }}
+      />
+
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => {
+          setShowSettings(false)
+          getCurrentUser().then((user) => setUserEmail(user?.email ?? null))
+        }}
+        onLoginClick={() => {
+          setShowSettings(false)
+          setShowAuth(true)
+        }}
+      />
     </main>
   )
 }
