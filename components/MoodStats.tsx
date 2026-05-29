@@ -189,9 +189,9 @@ export default function MoodStats() {
           </svg>
           近7天趋势
         </h3>
-        <div className="h-52 sm:h-60">
+        <div className="h-48 sm:h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={weeklyData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+            <LineChart data={weeklyData} margin={{ top: 8, right: 20, left: 10, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
                 dataKey="date"
@@ -201,18 +201,18 @@ export default function MoodStats() {
               <YAxis
                 yAxisId="left"
                 domain={[0, 10]}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11 }}
                 stroke="#9ca3af"
-                label={{ value: '心情', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: 11, fill: '#9ca3af' } }}
+                width={30}
               />
               {stats.weeklyBodyLoad.hasData && (
                 <YAxis
                   yAxisId="right"
                   orientation="right"
                   domain={[0, 10]}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 11 }}
                   stroke="#9ca3af"
-                  label={{ value: '负荷', angle: 90, position: 'insideRight', offset: 10, style: { fontSize: 11, fill: '#9ca3af' } }}
+                  width={30}
                 />
               )}
               <Tooltip
