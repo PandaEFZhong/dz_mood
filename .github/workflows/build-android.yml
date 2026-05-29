@@ -47,11 +47,36 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Generate release keystore
+      - name: Check keystore secret
+        id: keystore_check
         if: github.event.inputs.build_type != 'debug'
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "has_secret=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secret=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Load keystore from secret
+        if: github.event.inputs.build_type != 'debug' && steps.keystore_check.outputs.has_secret == 'true'
+        run: |
+          cd android/app
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > hearttrace.keystore
+          echo "Keystore loaded from GitHub Secret"
+
+      - name: Generate release keystore
+        if: github.event.inputs.build_type != 'debug' && steps.keystore_check.outputs.has_secret == 'false'
         run: |
           cd android/app
           keytool -genkey -v -keystore hearttrace.keystore -alias hearttrace -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Derrick Zhong, OU=HeartTrace, O=HeartTrace, L=Beijing, ST=Beijing, C=CN" -storepass hearttrace2024 -keypass hearttrace2024
+          echo "New keystore generated - download it from artifacts and set as KEYSTORE_BASE64 secret"
+
+      - name: Upload keystore (for initial setup)
+        if: github.event.inputs.build_type != 'debug' && steps.keystore_check.outputs.has_secret == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hearttrace-keystore
+          path: android/app/hearttrace.keystore
 
       - name: Build Release APK
         if: github.event.inputs.build_type != 'debug'
