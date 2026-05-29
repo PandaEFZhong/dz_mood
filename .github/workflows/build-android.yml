@@ -44,8 +44,18 @@ jobs:
         env:
           NEXT_PUBLIC_MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
 
+      - name: Check environment
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls -la dist/ | head -10
+          ls -la android/ | head -10
+
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx cap sync android --verbose
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME || env.ANDROID_SDK_ROOT }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT || env.ANDROID_HOME }}
 
       - name: Build Debug APK
         if: github.event.inputs.build_type != 'release'
