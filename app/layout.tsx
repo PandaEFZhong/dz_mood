@@ -3,7 +3,7 @@ import './globals.css'
 import DeviceSimulator from '@/components/DeviceSimulator'
 
 export const metadata: Metadata = {
-  title: '心迹',
+  title: '乐心',
   description: '记录心情，关注身体，AI 守护你的心脏健康',
 }
 

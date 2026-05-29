@@ -1,6 +1,6 @@
 {
   "appId": "com.hearttrace.app",
-  "appName": "心迹",
+  "appName": "乐心",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

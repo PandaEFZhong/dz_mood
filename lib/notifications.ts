@@ -44,7 +44,7 @@ export async function scheduleDailyReminder(enabled: boolean): Promise<void> {
       notifications: [
         {
           id: 1,
-          title: '心迹',
+          title: '乐心',
           body: '今天的心情如何？花一分钟记录一下吧 🌈',
           schedule: {
             at: reminderTime,

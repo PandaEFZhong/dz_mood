@@ -145,7 +145,7 @@ export default function Home() {
       <div className="bg-white shadow-sm">
         <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4">
           <div className="text-center mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">🌈 心情记录</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">🌈 乐心</h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">记录心情，关注身体，AI 守护你的心脏健康</p>
           </div>
 

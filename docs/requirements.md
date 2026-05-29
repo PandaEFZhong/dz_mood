@@ -1,4 +1,4 @@
-# 🫀 心迹 (HeartTrace) - 产品需求文档
+# 🫀 乐心 (HeartMate) - 产品需求文档
 
 > **版本：** v0.3  
 > **日期：** 2026-05-25  
@@ -214,7 +214,7 @@ interface MoodEntry {
 
 | 候选名 | 含义 |
 |---|---|
-| **心迹** (HeartTrace) | 心脏的轨迹 + 情绪的痕迹 |
+| **乐心** (HeartMate) | 快乐的心 + 心情乐谱 |
 | **心盾** (HeartShield) | 守护心脏 |
 | **脉语** (PulseTalk) | 脉搏在说话 |
 
