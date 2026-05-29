@@ -8,11 +8,11 @@ on:
       build_type:
         description: 'Build type'
         required: true
-        default: 'debug'
+        default: 'release'
         type: choice
         options:
-          - debug
           - release
+          - debug
 
 jobs:
   build:
@@ -44,41 +44,42 @@ jobs:
         env:
           NEXT_PUBLIC_MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
 
-      - name: Check environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls -la dist/ | head -10
-          ls -la android/ | head -10
-
       - name: Sync Capacitor
         run: npx cap sync android
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME || env.ANDROID_SDK_ROOT }}
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT || env.ANDROID_HOME }}
 
-      - name: Build Debug APK
-        if: github.event.inputs.build_type != 'release'
+      - name: Generate release keystore
+        if: github.event.inputs.build_type != 'debug'
         run: |
-          cd android
-          ./gradlew assembleDebug
+          cd android/app
+          keytool -genkey -v -keystore hearttrace.keystore -alias hearttrace -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Derrick Zhong, OU=HeartTrace, O=HeartTrace, L=Beijing, ST=Beijing, C=CN" -storepass hearttrace2024 -keypass hearttrace2024
 
       - name: Build Release APK
-        if: github.event.inputs.build_type == 'release'
+        if: github.event.inputs.build_type != 'debug'
+        env:
+          KEYSTORE_PATH: hearttrace.keystore
+          KEYSTORE_PASSWORD: hearttrace2024
+          KEY_ALIAS: hearttrace
+          KEY_PASSWORD: hearttrace2024
         run: |
           cd android
           ./gradlew assembleRelease
 
+      - name: Build Debug APK
+        if: github.event.inputs.build_type == 'debug'
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload Release APK
+        if: github.event.inputs.build_type != 'debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hearttrace-release
+          path: android/app/build/outputs/apk/release/app-release.apk
+
       - name: Upload Debug APK
-        if: github.event.inputs.build_type != 'release'
+        if: github.event.inputs.build_type == 'debug'
         uses: actions/upload-artifact@v4
         with:
           name: hearttrace-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Upload Release APK
-        if: github.event.inputs.build_type == 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: hearttrace-release
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
