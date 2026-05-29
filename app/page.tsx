@@ -141,8 +141,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* 顶部标题栏 - pt-6 避开手机状态栏 */}
-      <div className="bg-white shadow-sm pt-6">
+      {/* 顶部标题栏 - 动态安全区域适配刘海/挖孔屏 */}
+      <div className="bg-white shadow-sm" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 24px)' }}>
         <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-2 pb-2 sm:pt-3 sm:pb-3">
           <div className="text-center mb-2 sm:mb-3">
             <h1 className="text-lg sm:text-xl font-bold text-gray-800">🌈 乐心</h1>
