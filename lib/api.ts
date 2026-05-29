@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { getAllMoods, saveMood, deleteMood, MoodEntry, Vitals } from './moodStorage'
 import { analyzeMood } from './aiClient'
+import { syncMoodsToCloud, deleteMoodFromCloud, getCurrentUser } from './supabase'
 
 const IS_NATIVE = Capacitor.isNativePlatform()
 
@@ -36,8 +37,16 @@ export async function submitMood(content: string, vitals?: Vitals): Promise<Mood
     // 计算预警
     const all = await getAllMoods()
     const { calculateAlert } = await import('./healthAlert')
-    const alert = calculateAlert(saved, all)
-    return { ...saved, alertLevel: alert.level, alertMessage: alert.message }
+    const alertResult = calculateAlert(saved, all)
+    const resultWithAlert = { ...saved, alertLevel: alertResult.level, alertMessage: alertResult.message }
+
+    // 如果已登录，自动同步到云端
+    const user = await getCurrentUser()
+    if (user) {
+      await syncMoodsToCloud([resultWithAlert]).catch(() => {})
+    }
+
+    return resultWithAlert
   }
 
   const res = await fetch('/api/analyze', {
@@ -65,6 +74,11 @@ export async function removeMood(id: string): Promise<void> {
   if (IS_NATIVE) {
     const ok = await deleteMood(id)
     if (!ok) throw new Error('记录不存在')
+    // 如果已登录，同时删除云端
+    const user = await getCurrentUser()
+    if (user) {
+      await deleteMoodFromCloud(id).catch(() => {})
+    }
     return
   }
 

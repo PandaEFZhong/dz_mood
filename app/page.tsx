@@ -6,7 +6,7 @@ import MoodStats from '@/components/MoodStats'
 import BodyLoadRing from '@/components/BodyLoadRing'
 import AuthModal from '@/components/AuthModal'
 import SettingsPanel from '@/components/SettingsPanel'
-import { MoodEntry } from '@/lib/moodStorage'
+import { MoodEntry, saveAllMoods } from '@/lib/moodStorage'
 import { fetchMoods, submitMood, removeMood } from '@/lib/api'
 import { requestNotificationPermission, checkNotificationPermission, scheduleDailyReminder } from '@/lib/notifications'
 import { getCurrentUser, deleteMoodFromCloud } from '@/lib/supabase'
@@ -50,9 +50,34 @@ export default function Home() {
     loadMoods()
   }, [loadMoods])
 
-  // 检查登录状态
+  // 检查登录状态 + 自动拉取云端数据
   useEffect(() => {
-    getCurrentUser().then((user) => setUserEmail(user?.email ?? null))
+    getCurrentUser().then(async (user) => {
+      setUserEmail(user?.email ?? null)
+      if (user) {
+        // 已登录：拉取云端数据并合并到本地
+        try {
+          const { fetchMoodsFromCloud, syncMoodsToCloud } = await import('@/lib/supabase')
+          const localMoods = await fetchMoods()
+          const cloudMoods = await fetchMoodsFromCloud()
+          // 合并：云端优先补充本地
+          const cloudIds = new Set(cloudMoods.map((m) => m.id))
+          const merged = [...localMoods]
+          for (const cm of cloudMoods) {
+            if (!cloudIds.has(cm.id)) {
+              merged.push(cm)
+            }
+          }
+          merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          await saveAllMoods(merged)
+          setMoods(merged)
+          // 同步本地新记录到云端
+          await syncMoodsToCloud(merged)
+        } catch (e) {
+          console.error('自动同步失败:', e)
+        }
+      }
+    })
   }, [])
 
   // 检查通知权限状态
