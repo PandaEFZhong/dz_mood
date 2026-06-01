@@ -43,7 +43,10 @@ export async function submitMood(content: string, vitals?: Vitals): Promise<Mood
     // 如果已登录，自动同步到云端
     const user = await getCurrentUser()
     if (user) {
-      await syncMoodsToCloud([resultWithAlert]).catch(() => {})
+      const { error } = await syncMoodsToCloud([resultWithAlert])
+      if (error) {
+        console.error('自动同步失败:', error)
+      }
     }
 
     return resultWithAlert
@@ -77,7 +80,10 @@ export async function removeMood(id: string): Promise<void> {
     // 如果已登录，同时删除云端
     const user = await getCurrentUser()
     if (user) {
-      await deleteMoodFromCloud(id).catch(() => {})
+      const { error } = await deleteMoodFromCloud(id)
+      if (error) {
+        console.error('云端删除失败:', error)
+      }
     }
     return
   }

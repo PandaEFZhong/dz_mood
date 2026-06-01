@@ -32,8 +32,8 @@ export async function getSession() {
 
 // ─── Sync ───
 
-export function moodToRecord(mood: MoodEntry) {
-  return {
+export function moodToRecord(mood: MoodEntry, userId?: string) {
+  const record: any = {
     local_id: mood.id,
     content: mood.content,
     score: mood.score,
@@ -51,6 +51,8 @@ export function moodToRecord(mood: MoodEntry) {
     vitals: mood.vitals ?? null,
     created_at: mood.createdAt,
   }
+  if (userId) record.user_id = userId
+  return record
 }
 
 export function recordToMood(record: any): MoodEntry {
@@ -79,7 +81,7 @@ export async function syncMoodsToCloud(moods: MoodEntry[]) {
   const user = await getCurrentUser()
   if (!user) return { error: new Error('未登录') }
 
-  const records = moods.map(moodToRecord)
+  const records = moods.map((m) => moodToRecord(m, user.id))
   return supabase.from('moods').upsert(records, { onConflict: 'local_id' })
 }
 
@@ -106,5 +108,5 @@ export async function deleteMoodFromCloud(localId: string) {
   const user = await getCurrentUser()
   if (!user) return { error: new Error('未登录') }
 
-  return supabase.from('moods').delete().eq('local_id', localId)
+  return supabase.from('moods').delete().eq('local_id', localId).eq('user_id', user.id)
 }

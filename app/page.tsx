@@ -61,11 +61,11 @@ export default function Home() {
           const { fetchMoodsFromCloud, syncMoodsToCloud } = await import('@/lib/supabase')
           const localMoods = await fetchMoods()
           const cloudMoods = await fetchMoodsFromCloud()
-          // 合并：云端优先补充本地
-          const cloudIds = new Set(cloudMoods.map((m) => m.id))
+          // 合并：以本地为主，云端补充本地没有的记录
+          const localIds = new Set(localMoods.map((m) => m.id))
           const merged = [...localMoods]
           for (const cm of cloudMoods) {
-            if (!cloudIds.has(cm.id)) {
+            if (!localIds.has(cm.id)) {
               merged.push(cm)
             }
           }
