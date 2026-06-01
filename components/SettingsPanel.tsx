@@ -47,7 +47,12 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
       // 1. 上传本地数据到云端
       const localMoods = await getAllMoods()
       if (localMoods.length > 0) {
-        await syncMoodsToCloud(localMoods)
+        const { error: uploadError } = await syncMoodsToCloud(localMoods)
+        if (uploadError) {
+          setSyncMessage(`上传失败: ${uploadError.message}`)
+          setSyncing(false)
+          return
+        }
       }
 
       // 2. 从云端拉取数据
@@ -57,7 +62,7 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
       const merged = mergeMoods(localMoods, cloudMoods)
       await saveAllMoods(merged)
       setLocalCount(merged.length)
-      setSyncMessage(`同步成功！共 ${merged.length} 条记录`)
+      setSyncMessage(`同步成功！本地 ${localMoods.length} 条，云端 ${cloudMoods.length} 条，合并 ${merged.length} 条`)
     } catch (err: any) {
       setSyncMessage(`同步失败: ${err.message}`)
     } finally {
