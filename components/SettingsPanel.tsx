@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser, signOut, syncMoodsToCloud, fetchMoodsFromCloud } from '@/lib/supabase'
 import { getAllMoods, saveAllMoods, MoodEntry } from '@/lib/moodStorage'
+import { sendTestNotification, getPendingNotifications, scheduleDailyReminder } from '@/lib/notifications'
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -15,11 +16,23 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
   const [syncing, setSyncing] = useState(false)
   const [syncMessage, setSyncMessage] = useState('')
   const [localCount, setLocalCount] = useState(0)
+  const [pendingNotifications, setPendingNotifications] = useState<string>('')
+  const [testMsg, setTestMsg] = useState('')
 
   useEffect(() => {
     if (!isOpen) return
     checkUser()
     getAllMoods().then((moods) => setLocalCount(moods.length))
+    // 获取已调度通知
+    getPendingNotifications().then((list) => {
+      if (list.length === 0) {
+        setPendingNotifications('暂无待发送通知')
+      } else {
+        setPendingNotifications(
+          list.map((n: any) => `ID:${n.id} ${n.title} @ ${n.schedule?.at ? new Date(n.schedule.at).toLocaleString('zh-CN') : '立即'}`).join('；')
+        )
+      }
+    })
   }, [isOpen])
 
   async function checkUser() {
@@ -137,6 +150,27 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
             {syncMessage}
           </div>
         )}
+
+        {/* 通知测试 */}
+        <div className="border-t border-gray-100 pt-4 mb-4">
+          <p className="text-xs font-medium text-gray-700 mb-2">通知诊断</p>
+          <button
+            onClick={async () => {
+              setTestMsg('发送中...')
+              const ok = await sendTestNotification()
+              setTestMsg(ok ? '测试通知已发送，5秒后查看' : '发送失败，请检查通知权限')
+            }}
+            className="w-full py-2 text-xs bg-orange-50 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+          >
+            📢 发送测试通知（5秒后）
+          </button>
+          {testMsg && (
+            <p className="mt-1 text-[10px] text-gray-500 text-center">{testMsg}</p>
+          )}
+          <p className="mt-2 text-[10px] text-gray-400 leading-relaxed">
+            待发送: {pendingNotifications}
+          </p>
+        </div>
 
         {/* 数据统计 */}
         <div className="border-t border-gray-100 pt-4">

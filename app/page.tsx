@@ -24,6 +24,7 @@ export default function Home() {
   const [lastSubmitted, setLastSubmitted] = useState<MoodEntry | null>(null)
   const [expandContent, setExpandContent] = useState(false)
   const [dailyReminder, setDailyReminder] = useState(false)
+  const [reminderMsg, setReminderMsg] = useState('')
   const [showAuth, setShowAuth] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -80,12 +81,13 @@ export default function Home() {
     })
   }, [])
 
-  // 检查通知权限状态
+  // 检查通知权限状态 + 重新调度通知
   useEffect(() => {
-    checkNotificationPermission().then((granted) => {
+    checkNotificationPermission().then(async (granted) => {
       if (granted) {
-        scheduleDailyReminder(true)
+        const msg = await scheduleDailyReminder(true)
         setDailyReminder(true)
+        setReminderMsg(msg)
       }
     })
   }, [])
@@ -553,6 +555,9 @@ export default function Home() {
             <div>
               <p className="text-sm font-medium text-gray-800">每日提醒</p>
               <p className="text-xs text-gray-400">晚上 9 点提醒记录心情</p>
+              {reminderMsg && (
+                <p className="text-[10px] text-primary-600 mt-0.5">{reminderMsg}</p>
+              )}
             </div>
           </div>
           <button
@@ -560,12 +565,16 @@ export default function Home() {
               if (!dailyReminder) {
                 const granted = await requestNotificationPermission()
                 if (granted) {
-                  await scheduleDailyReminder(true)
+                  const msg = await scheduleDailyReminder(true)
                   setDailyReminder(true)
+                  setReminderMsg(msg)
+                } else {
+                  setReminderMsg('通知权限被拒绝')
                 }
               } else {
                 await scheduleDailyReminder(false)
                 setDailyReminder(false)
+                setReminderMsg('')
               }
             }}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
