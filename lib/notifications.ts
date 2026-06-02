@@ -2,6 +2,7 @@ import { LocalNotifications } from '@capacitor/local-notifications'
 import { Capacitor } from '@capacitor/core'
 
 const IS_NATIVE = Capacitor.isNativePlatform()
+const IS_IOS = Capacitor.getPlatform() === 'ios'
 
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!IS_NATIVE) return false
@@ -77,20 +78,34 @@ export async function scheduleDailyReminder(enabled: boolean): Promise<string> {
       reminderTime.setDate(reminderTime.getDate() + 1)
     }
 
-    // Capacitor 在 Android 上的重复通知不稳定，改用每天单独调度
-    // 先调度第一条
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id: 1,
-          title: '乐心',
-          body: '今天的心情如何？花一分钟记录一下吧 🌈',
-          schedule: { at: reminderTime },
-          sound: 'default',
-          smallIcon: 'ic_launcher',
-        },
-      ],
-    })
+    if (IS_IOS) {
+      // iOS 支持可靠的每天重复通知
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: 1,
+            title: '乐心',
+            body: '今天的心情如何？花一分钟记录一下吧 🌈',
+            schedule: { on: { hour: 21, minute: 0 }, repeats: true },
+            sound: 'default',
+          },
+        ],
+      })
+    } else {
+      // Android：重复通知不稳定，只调度下一次
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: 1,
+            title: '乐心',
+            body: '今天的心情如何？花一分钟记录一下吧 🌈',
+            schedule: { at: reminderTime },
+            sound: 'default',
+            smallIcon: 'ic_launcher',
+          },
+        ],
+      })
+    }
 
     const formatted = reminderTime.toLocaleString('zh-CN', {
       month: 'short',

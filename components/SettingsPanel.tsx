@@ -9,9 +9,10 @@ interface SettingsPanelProps {
   isOpen: boolean
   onClose: () => void
   onLoginClick: () => void
+  onSyncComplete?: () => void
 }
 
-export default function SettingsPanel({ isOpen, onClose, onLoginClick }: SettingsPanelProps) {
+export default function SettingsPanel({ isOpen, onClose, onLoginClick, onSyncComplete }: SettingsPanelProps) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [syncMessage, setSyncMessage] = useState('')
@@ -63,6 +64,7 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
       await saveAllMoods(merged)
       setLocalCount(merged.length)
       setSyncMessage(`同步成功！本地 ${localMoods.length} 条，云端 ${cloudMoods.length} 条，合并 ${merged.length} 条`)
+      onSyncComplete?.()
     } catch (err: any) {
       setSyncMessage(`同步失败: ${err.message}`)
     } finally {
@@ -79,11 +81,15 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick }: Setting
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={onClose}>
+      <div
+        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto animate-slide-up"
+        style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-gray-800">设置</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 -mr-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>

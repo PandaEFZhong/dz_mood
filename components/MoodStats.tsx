@@ -201,18 +201,18 @@ export default function MoodStats() {
               <YAxis
                 yAxisId="left"
                 domain={[0, 10]}
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10 }}
                 stroke="#9ca3af"
-                width={30}
+                width={24}
               />
               {stats.weeklyBodyLoad.hasData && (
                 <YAxis
                   yAxisId="right"
                   orientation="right"
                   domain={[0, 10]}
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 10 }}
                   stroke="#9ca3af"
-                  width={30}
+                  width={24}
                 />
               )}
               <Tooltip
@@ -286,8 +286,8 @@ export default function MoodStats() {
                     data={distributionData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
+                    innerRadius="55%"
+                    outerRadius="85%"
                     paddingAngle={2}
                     dataKey="value"
                   >

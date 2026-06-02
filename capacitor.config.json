@@ -1,13 +1,22 @@
 {
-  "appId": "com.hearttrace.app",
+  "appId": "com.dz.heartmate",
   "appName": "乐心",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
   },
+
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
+      "backgroundColor": "#ffffff"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "default"
+    },
+    "StatusBar": {
+      "style": "dark",
       "backgroundColor": "#ffffff"
     }
   }

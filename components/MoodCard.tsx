@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MoodEntry } from '@/lib/moodStorage'
 import BodyLoadRing from './BodyLoadRing'
+import { formatTime, getAlertStyles, getAlertIcon, getAlertLabel } from '@/lib/ui-helpers'
 
 interface MoodCardProps {
   mood: MoodEntry
@@ -78,43 +79,6 @@ function getArousalColor(arousal: number): string {
   return 'bg-red-500'
 }
 
-function formatTime(isoString: string): string {
-  const date = new Date(isoString)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  return date.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-
-function getAlertStyles(level?: string) {
-  switch (level) {
-    case 'danger': return 'bg-red-50 border-red-300 text-red-800'
-    case 'warning': return 'bg-amber-50 border-amber-300 text-amber-800'
-    case 'attention': return 'bg-blue-50 border-blue-300 text-blue-800'
-    default: return ''
-  }
-}
-
-function getAlertIcon(level?: string) {
-  switch (level) {
-    case 'danger': return '🚨'
-    case 'warning': return '⚠️'
-    case 'attention': return '💡'
-    default: return ''
-  }
-}
-
-function getAlertLabel(level?: string) {
-  switch (level) {
-    case 'danger': return '危险'
-    case 'warning': return '警告'
-    case 'attention': return '关注'
-    default: return ''
-  }
-}
-
 export default function MoodCard({ mood, onDelete, isDeleting }: MoodCardProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [showBodyAdvice, setShowBodyAdvice] = useState(false)
@@ -173,8 +137,8 @@ export default function MoodCard({ mood, onDelete, isDeleting }: MoodCardProps) 
             <div className="flex items-center">
               {showConfirm ? (
                 <div className="flex items-center gap-1">
-                  <button onClick={handleDeleteClick} disabled={isDeleting} className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50">确认</button>
-                  <button onClick={() => setShowConfirm(false)} disabled={isDeleting} className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors disabled:opacity-50">取消</button>
+                  <button onClick={handleDeleteClick} disabled={isDeleting} className="px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 min-h-[32px] min-w-[48px]">确认</button>
+                  <button onClick={() => setShowConfirm(false)} disabled={isDeleting} className="px-3 py-1.5 text-xs bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 min-h-[32px] min-w-[48px]">取消</button>
                 </div>
               ) : (
                 <button onClick={() => setShowConfirm(true)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="删除">

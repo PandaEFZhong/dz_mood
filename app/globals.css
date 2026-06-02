@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gray-50;
+@layer base {
+  body {
+    @apply bg-gray-50;
+    -webkit-tap-highlight-color: transparent;
+  }
 }

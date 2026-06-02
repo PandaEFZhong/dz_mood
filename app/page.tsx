@@ -10,6 +10,7 @@ import { MoodEntry, saveAllMoods } from '@/lib/moodStorage'
 import { fetchMoods, submitMood, removeMood } from '@/lib/api'
 import { requestNotificationPermission, checkNotificationPermission, scheduleDailyReminder } from '@/lib/notifications'
 import { getCurrentUser, deleteMoodFromCloud } from '@/lib/supabase'
+import { getAlertStyles, getAlertIcon } from '@/lib/ui-helpers'
 
 type TabType = 'record' | 'history' | 'stats'
 
@@ -151,33 +152,6 @@ export default function Home() {
     }
   }
 
-  // 预警卡片颜色
-  const getAlertStyles = (level?: string) => {
-    switch (level) {
-      case 'danger':
-        return 'bg-red-50 border-red-300 text-red-800'
-      case 'warning':
-        return 'bg-amber-50 border-amber-300 text-amber-800'
-      case 'attention':
-        return 'bg-blue-50 border-blue-300 text-blue-800'
-      default:
-        return ''
-    }
-  }
-
-  const getAlertIcon = (level?: string) => {
-    switch (level) {
-      case 'danger':
-        return '🚨'
-      case 'warning':
-        return '⚠️'
-      case 'attention':
-        return '💡'
-      default:
-        return ''
-    }
-  }
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* 顶部标题栏 - 动态安全区域适配刘海/挖孔屏 */}
@@ -247,7 +221,7 @@ export default function Home() {
       {/* 内容区域 */}
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {activeTab === 'record' ? (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in">
             {/* 提交成功提示 */}
             {lastSubmitted && (
               <div className="bg-green-50 border border-green-200 rounded-xl sm:rounded-2xl p-4 sm:p-5">
@@ -514,7 +488,7 @@ export default function Home() {
             </div>
           </div>
         ) : activeTab === 'history' ? (
-          <div>
+          <div className="animate-fade-in">
             {initialLoading ? (
               <div className="flex items-center justify-center py-12">
                 <svg className="animate-spin h-8 w-8 text-primary-600" viewBox="0 0 24 24">
@@ -539,63 +513,69 @@ export default function Home() {
             )}
           </div>
         ) : (
-          <MoodStats />
+          <div className="animate-fade-in">
+            <MoodStats />
+          </div>
         )}
       </div>
 
-      {/* 设置区域 */}
-      <div className="max-w-2xl mx-auto px-3 sm:px-4 pb-4">
-        <div className="bg-white rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-800">每日提醒</p>
-              <p className="text-xs text-gray-400">晚上 9 点提醒记录心情</p>
-              {reminderMsg && (
-                <p className="text-[10px] text-primary-600 mt-0.5">{reminderMsg}</p>
-              )}
+      {activeTab === 'record' && (
+        <>
+          {/* 设置区域 - 仅在记录页显示 */}
+          <div className="max-w-2xl mx-auto px-3 sm:px-4 pb-4">
+            <div className="bg-white rounded-xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">每日提醒</p>
+                  <p className="text-xs text-gray-400">晚上 9 点提醒记录心情</p>
+                  {reminderMsg && (
+                    <p className="text-[10px] text-primary-600 mt-0.5">{reminderMsg}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!dailyReminder) {
+                    const granted = await requestNotificationPermission()
+                    if (granted) {
+                      const msg = await scheduleDailyReminder(true)
+                      setDailyReminder(true)
+                      setReminderMsg(msg)
+                    } else {
+                      setReminderMsg('通知权限被拒绝')
+                    }
+                  } else {
+                    await scheduleDailyReminder(false)
+                    setDailyReminder(false)
+                    setReminderMsg('')
+                  }
+                }}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  dailyReminder ? 'bg-primary-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    dailyReminder ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
-          <button
-            onClick={async () => {
-              if (!dailyReminder) {
-                const granted = await requestNotificationPermission()
-                if (granted) {
-                  const msg = await scheduleDailyReminder(true)
-                  setDailyReminder(true)
-                  setReminderMsg(msg)
-                } else {
-                  setReminderMsg('通知权限被拒绝')
-                }
-              } else {
-                await scheduleDailyReminder(false)
-                setDailyReminder(false)
-                setReminderMsg('')
-              }
-            }}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              dailyReminder ? 'bg-primary-600' : 'bg-gray-200'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                dailyReminder ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
 
-      <footer className="text-center text-xs text-gray-400 pb-6">
-        <p>Powered by Kimi AI · 本产品仅供健康参考，不能替代医疗诊断</p>
-        <p className="mt-1">
-          <a href="https://pandaefzhong.github.io/dz_mood/privacy-policy.html" className="hover:text-gray-500 underline">隐私政策</a>
-        </p>
-      </footer>
+          <footer className="text-center text-xs text-gray-400 pb-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+            <p>Powered by Kimi AI · 本产品仅供健康参考，不能替代医疗诊断</p>
+            <p className="mt-1">
+              <a href="https://pandaefzhong.github.io/dz_mood/privacy-policy.html" className="hover:text-gray-500 underline">隐私政策</a>
+            </p>
+          </footer>
+        </>
+      )}
 
       <AuthModal
         isOpen={showAuth}
@@ -615,6 +595,9 @@ export default function Home() {
         onLoginClick={() => {
           setShowSettings(false)
           setShowAuth(true)
+        }}
+        onSyncComplete={() => {
+          loadMoods()
         }}
       />
     </main>
