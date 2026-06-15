@@ -48,6 +48,10 @@ jobs:
 
       - name: Verify env vars injected into build
         run: |
+          if [ -z "${{ secrets.MOONSHOT_API_KEY }}" ]; then
+            echo "❌ MOONSHOT_API_KEY secret is missing"
+            exit 1
+          fi
           if [ -z "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" ]; then
             echo "❌ NEXT_PUBLIC_SUPABASE_URL secret is missing"
             exit 1
@@ -61,6 +65,9 @@ jobs:
             exit 1
           fi
           echo "✅ Build bundle contains Supabase URL"
+          echo "MOONSHOT_API_KEY length: ${#MOONSHOT_API_KEY}"
+        env:
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
 
       - name: Sync Capacitor
         run: npx cap sync android

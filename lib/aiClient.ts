@@ -5,6 +5,10 @@ const IS_NATIVE = Capacitor.isNativePlatform()
 const API_KEY = process.env.NEXT_PUBLIC_MOONSHOT_API_KEY || ''
 const KIMI_API_URL = 'https://api.moonshot.cn/v1/chat/completions'
 
+export function isMoonshotKeyConfigured(): boolean {
+  return !!API_KEY
+}
+
 export interface AiAnalysisResult {
   score: number
   valence: number
@@ -24,7 +28,10 @@ export interface AiAnalysisResult {
  * - Web 环境：走 Next.js API 路由代理
  */
 export async function analyzeMood(content: string, vitals?: Vitals): Promise<AiAnalysisResult> {
-  if (IS_NATIVE && API_KEY) {
+  if (IS_NATIVE) {
+    if (!API_KEY) {
+      throw new Error('Moonshot API Key 未配置，请检查构建参数')
+    }
     return callKimiDirectly(content, vitals)
   }
   return callServerProxy(content, vitals)
@@ -53,7 +60,7 @@ async function callServerProxy(content: string, vitals?: Vitals): Promise<AiAnal
 
 async function callKimiDirectly(content: string, vitals?: Vitals): Promise<AiAnalysisResult> {
   if (!API_KEY) {
-    throw new Error('API Key 未配置，请在 .env.local 中设置 NEXT_PUBLIC_MOONSHOT_API_KEY')
+    throw new Error('Moonshot API Key 未配置')
   }
 
   // 构建 vitals 描述
