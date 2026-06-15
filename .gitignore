@@ -31,3 +31,9 @@ yarn-error.log*
 
 # Data files
 data/moods.json
+
+# Agent workspace
+.agents/
+
+# Build output (static export)
+dist/
