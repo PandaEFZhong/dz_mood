@@ -46,6 +46,22 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Verify env vars injected into build
+        run: |
+          if [ -z "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" ]; then
+            echo "❌ NEXT_PUBLIC_SUPABASE_URL secret is missing"
+            exit 1
+          fi
+          if [ -z "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" ]; then
+            echo "❌ NEXT_PUBLIC_SUPABASE_ANON_KEY secret is missing"
+            exit 1
+          fi
+          if ! grep -q "supabase.co" dist/_next/static/chunks/app/page-*.js; then
+            echo "❌ Supabase URL not found in built bundle"
+            exit 1
+          fi
+          echo "✅ Build bundle contains Supabase URL"
+
       - name: Sync Capacitor
         run: npx cap sync android
 

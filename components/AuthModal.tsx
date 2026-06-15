@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signUp, signIn } from '@/lib/supabase'
+import { signUp, signIn, isSupabaseConfigured } from '@/lib/supabase'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -37,7 +37,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         onSuccess()
       }
     } catch (err: any) {
-      setError(err.message || '操作失败')
+      console.error('登录/注册异常:', err)
+      let msg = err?.message || '操作失败'
+      // 网络请求失败的常见情况
+      if (msg === 'Failed to fetch') {
+        msg = '网络连接失败，请检查网络或稍后再试'
+      }
+      if (!isSupabaseConfigured) {
+        msg = '应用配置异常，请联系开发者（Supabase 未配置）'
+      }
+      setError(msg)
     } finally {
       setLoading(false)
     }

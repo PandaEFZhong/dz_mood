@@ -1,10 +1,26 @@
 import { createClient } from '@supabase/supabase-js'
 import { MoodEntry } from './moodStorage'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const isSupabaseConfigured = !!supabaseUrl && !!supabaseKey
+
+if (!isSupabaseConfigured) {
+  console.error('Supabase 环境变量缺失:', {
+    url: !!supabaseUrl,
+    key: !!supabaseKey,
+  })
+}
+
+export const supabase = createClient(supabaseUrl || '', supabaseKey || '', {
+  auth: {
+    // Capacitor 的 URL scheme 不是标准 http/https，关闭 URL session 检测避免异常
+    detectSessionInUrl: false,
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+})
 
 // ─── Auth ───
 
