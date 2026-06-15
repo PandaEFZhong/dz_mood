@@ -32,6 +32,35 @@ export const supabase = createClient(supabaseUrl || '', supabaseKey || '', {
   },
 })
 
+// ─── Network diagnostic ───
+
+export async function pingSupabase(): Promise<{ ok: boolean; status: number; message: string }> {
+  if (!supabaseUrl || !supabaseKey) {
+    return { ok: false, status: 0, message: 'Supabase 未配置' }
+  }
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000)
+    const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
+      method: 'GET',
+      headers: { apikey: supabaseKey },
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+    return {
+      ok: res.ok,
+      status: res.status,
+      message: res.ok ? `✅ 可连通 ${new URL(supabaseUrl).hostname}` : `⚠️ 返回 ${res.status}`,
+    }
+  } catch (err: any) {
+    return {
+      ok: false,
+      status: 0,
+      message: `❌ 无法连通: ${err?.name || err?.message || '未知错误'}`,
+    }
+  }
+}
+
 // ─── Auth ───
 
 export async function signUp(email: string, password: string) {
