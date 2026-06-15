@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getCurrentUser, signOut, syncMoodsToCloud, fetchMoodsFromCloud } from '@/lib/supabase'
+import { getCurrentUser, signOut, syncMoodsToCloud, fetchMoodsFromCloud, getSupabaseHost, isSupabaseConfigured } from '@/lib/supabase'
 import { getAllMoods, saveAllMoods, MoodEntry } from '@/lib/moodStorage'
 import { sendTestNotification, getPendingNotifications, scheduleDailyReminder } from '@/lib/notifications'
 
@@ -19,6 +19,7 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick, onSyncCom
   const [localCount, setLocalCount] = useState(0)
   const [pendingNotifications, setPendingNotifications] = useState<string>('')
   const [testMsg, setTestMsg] = useState('')
+  const [netMsg, setNetMsg] = useState('')
 
   useEffect(() => {
     if (!isOpen) return
@@ -161,6 +162,43 @@ export default function SettingsPanel({ isOpen, onClose, onLoginClick, onSyncCom
             {syncMessage}
           </div>
         )}
+
+        {/* 网络诊断 */}
+        <div className="border-t border-gray-100 pt-4 mb-4">
+          <p className="text-xs font-medium text-gray-700 mb-2">网络诊断</p>
+          <button
+            onClick={async () => {
+              setNetMsg('检测中...')
+              if (!isSupabaseConfigured) {
+                setNetMsg('Supabase 未配置')
+                return
+              }
+              const host = getSupabaseHost()
+              try {
+                const controller = new AbortController()
+                const timeout = setTimeout(() => controller.abort(), 10000)
+                const res = await fetch(`https://${host}/auth/v1/health`, {
+                  method: 'GET',
+                  signal: controller.signal,
+                })
+                clearTimeout(timeout)
+                if (res.ok) {
+                  setNetMsg(`✅ 可连通 ${host}`)
+                } else {
+                  setNetMsg(`⚠️ 返回 ${res.status}`)
+                }
+              } catch (err: any) {
+                setNetMsg(`❌ 无法连通: ${err?.name || err?.message || '未知错误'}`)
+              }
+            }}
+            className="w-full py-2 text-xs bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            🌐 测试 Supabase 连通性
+          </button>
+          {netMsg && (
+            <p className="mt-1 text-[10px] text-gray-500 text-center">{netMsg}</p>
+          )}
+        </div>
 
         {/* 通知测试 */}
         <div className="border-t border-gray-100 pt-4 mb-4">

@@ -6,6 +6,16 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export const isSupabaseConfigured = !!supabaseUrl && !!supabaseKey
 
+// 用于调试显示（脱敏）
+export function getSupabaseHost(): string {
+  if (!supabaseUrl) return '未配置'
+  try {
+    return new URL(supabaseUrl).hostname
+  } catch {
+    return '格式错误'
+  }
+}
+
 if (!isSupabaseConfigured) {
   console.error('Supabase 环境变量缺失:', {
     url: !!supabaseUrl,

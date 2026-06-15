@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signUp, signIn, isSupabaseConfigured } from '@/lib/supabase'
+import { signUp, signIn, isSupabaseConfigured, getSupabaseHost } from '@/lib/supabase'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -118,7 +118,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           </div>
 
           {error && (
-            <div className="p-2.5 bg-red-50 text-red-600 rounded-lg text-xs animate-fade-in">{error}</div>
+            <div className="p-2.5 bg-red-50 text-red-600 rounded-lg text-xs animate-fade-in space-y-1">
+              <p>{error}</p>
+              <p className="text-[10px] opacity-80">Supabase: {getSupabaseHost()}</p>
+            </div>
           )}
 
           {message && (
